@@ -18,14 +18,6 @@ public class SearchFlightsService {
     }
 
     public List<Flight> searchByOrigin(String origin) {
-        // Simplest implementation - hardcoded to make test pass
-        return List.of(new Flight(
-                "AA100",
-                "JFK",
-                "LAX",
-                LocalDateTime.of(2025, 10, 22, 10, 30),
-                Duration.ofHours(5).plusMinutes(30),
-                "American Airlines"
-        ));
+        return flightRepository.findByOrigin(origin);
     }
 }
