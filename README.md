@@ -1,5 +1,10 @@
 # Flight Search API
 
+[![CI](https://github.com/sharanggupta/flight-search/actions/workflows/ci.yml/badge.svg)](https://github.com/sharanggupta/flight-search/actions/workflows/ci.yml)
+[![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://openjdk.org/projects/jdk/21/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.0-brightgreen.svg)](https://spring.io/projects/spring-boot)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 A Spring Boot REST API for searching flights, built using Test-Driven Development (TDD) and Hexagonal Architecture principles.
 
 ## Technologies
@@ -52,9 +57,9 @@ This project strictly follows **Double-Loop TDD**:
 
 ## Running the Tests
 
-### Unit Tests Only
+### Unit Tests Only (all tests except E2E)
 ```bash
-./mvnw test -Dtest="*ServiceTest"
+./mvnw test -Dtest="!E2E*"
 ```
 
 ### E2E Tests Only
@@ -66,6 +71,16 @@ This project strictly follows **Double-Loop TDD**:
 ```bash
 ./mvnw test
 ```
+
+## Continuous Integration
+
+The project uses GitHub Actions for automated testing on every push:
+
+1. **Unit Tests** - Fast, isolated tests (no Docker required)
+2. **E2E Tests** - Full integration tests with TestContainers
+3. **Build** - Creates JAR artifact
+
+Test results are automatically published and visible in PR checks. View the [Actions tab](https://github.com/sharanggupta/flight-search/actions) for detailed test reports.
 
 ## Running the Application
 

@@ -25,6 +25,16 @@ jobs:
       - name: Run unit tests
         run: ./mvnw test -Dtest="!E2E*"
 
+      - name: Publish unit test results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          files: |
+            target/surefire-reports/*.xml
+          check_name: Unit Test Results
+          report_individual_runs: true
+          deduplicate_classes_by_file_name: false
+
       - name: Upload unit test results
         if: always()
         uses: actions/upload-artifact@v4
@@ -50,6 +60,16 @@ jobs:
 
       - name: Run E2E tests
         run: ./mvnw test -Dtest="E2E*"
+
+      - name: Publish E2E test results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          files: |
+            target/surefire-reports/*.xml
+          check_name: E2E Test Results
+          report_individual_runs: true
+          deduplicate_classes_by_file_name: false
 
       - name: Upload E2E test results
         if: always()
