@@ -16,11 +16,11 @@ fi
 
 # Start PostgreSQL container
 echo "📦 Starting PostgreSQL container..."
-docker-compose up -d postgres
+docker-compose -f docker/docker-compose.yml up -d postgres
 
 # Wait for PostgreSQL to be ready
 echo "⏳ Waiting for PostgreSQL to be ready..."
-until docker-compose exec -T postgres pg_isready -U postgres > /dev/null 2>&1; do
+until docker-compose -f docker/docker-compose.yml exec -T postgres pg_isready -U postgres > /dev/null 2>&1; do
     sleep 1
 done
 

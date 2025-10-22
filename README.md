@@ -125,13 +125,13 @@ This automatically:
 
 ```bash
 # Start only PostgreSQL
-docker-compose up -d postgres
+docker-compose -f docker/docker-compose.yml up -d postgres
 
 # Run application with specific profile
 ./mvnw spring-boot:run -Dspring-boot.run.profiles=local
 
 # Or run full stack
-docker-compose up --build
+docker-compose -f docker/docker-compose.yml up --build
 ```
 
 ### Stopping Services
@@ -140,10 +140,10 @@ docker-compose up --build
 ./scripts/stop.sh
 
 # Or manually
-docker-compose down
+docker-compose -f docker/docker-compose.yml down
 
 # Remove database volume (fresh start)
-docker-compose down -v
+docker-compose -f docker/docker-compose.yml down -v
 ```
 
 ## API Endpoints
