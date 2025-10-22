@@ -89,6 +89,8 @@ Test results are automatically published and visible in PR checks. View the [Act
 - Docker & Docker Compose
 - Maven 3.6+
 
+**Note:** The Docker setup uses port **5433** for PostgreSQL (not 5432) to avoid conflicts with local PostgreSQL installations.
+
 ### Option 1: Local Development (Recommended for Development)
 
 App runs locally with hot reload, database in Docker:

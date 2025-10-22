@@ -3,7 +3,7 @@ spring:
     name: FlightSearch
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/flightdb
+    url: jdbc:postgresql://localhost:5433/flightdb
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
