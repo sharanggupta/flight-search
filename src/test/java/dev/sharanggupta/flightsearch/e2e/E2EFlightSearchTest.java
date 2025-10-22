@@ -1,7 +1,7 @@
-package com.example.flightsearch.e2e;
+package dev.sharanggupta.flightsearch.e2e;
 
-import com.example.flightsearch.adapter.out.persistence.FlightEntity;
-import com.example.flightsearch.adapter.out.persistence.JpaFlightRepository;
+import dev.sharanggupta.flightsearch.infrastructure.output.persistence.FlightEntity;
+import dev.sharanggupta.flightsearch.infrastructure.output.persistence.JpaFlightRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

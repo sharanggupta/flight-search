@@ -1,7 +1,7 @@
-package com.example.flightsearch.application.service;
+package dev.sharanggupta.flightsearch.application.services;
 
-import com.example.flightsearch.application.port.out.FlightRepository;
-import com.example.flightsearch.domain.Flight;
+import dev.sharanggupta.flightsearch.application.ports.output.FlightRepository;
+import dev.sharanggupta.flightsearch.domain.Flight;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -39,7 +39,10 @@ class SearchFlightsServiceTest {
         assertThat(result.get(0).airline()).isEqualTo("American Airlines");
     }
 
-    // Simple fake implementation for testing
+    /**
+     * Test double - no mocking framework needed.
+     * This is a simple fake implementation for testing.
+     */
     private static class FakeFlightRepository implements FlightRepository {
         @Override
         public List<Flight> findByOrigin(String origin) {
