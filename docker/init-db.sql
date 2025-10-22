@@ -11,7 +11,14 @@ CREATE TABLE IF NOT EXISTS flights (
 
 -- Insert sample data only if table is empty
 INSERT INTO flights (flight_number, origin, destination, departure_date_time, duration_minutes, airline)
-SELECT * FROM (VALUES
+SELECT
+    flight_number,
+    origin,
+    destination,
+    departure_date_time::TIMESTAMP,
+    duration_minutes,
+    airline
+FROM (VALUES
     ('AA100', 'JFK', 'LAX', '2025-10-22 10:30:00', 330, 'American Airlines'),
     ('AA101', 'JFK', 'SFO', '2025-10-22 14:15:00', 360, 'American Airlines'),
     ('UA200', 'LAX', 'SFO', '2025-10-22 08:00:00', 90, 'United Airlines'),
