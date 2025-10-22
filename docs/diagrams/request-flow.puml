@@ -1,0 +1,109 @@
+@startuml request-flow
+
+title Request Flow - Search Flights by Origin
+
+actor "Client" as client
+participant "FlightController" as controller #FFE5CC
+participant "SearchFlightsUseCase" as useCase #CCE5FF
+participant "SearchFlightsService" as service #FFFFCC
+participant "FlightRepository" as repoPort #CCE5FF
+participant "FlightRepositoryAdapter" as repoAdapter #FFE5CC
+participant "JpaFlightRepository" as jpaRepo #FFE5CC
+participant "FlightEntity" as entity #FFE5CC
+database "PostgreSQL" as db
+
+== Infrastructure Layer (Outside) ==
+
+client -> controller : GET /api/flights?origin=JFK
+activate controller
+
+== Hexagon Boundary: Infrastructure → Hexagon ==
+
+controller -> useCase : searchByOrigin("JFK")
+activate useCase
+note right
+  Controller depends on
+  **interface** (driving port),
+  not implementation
+end note
+
+== Application Layer (Inside Hexagon) ==
+
+useCase -> service : searchByOrigin("JFK")
+activate service
+note right
+  Use case is **pure Java**
+  NO @Service annotation
+end note
+
+== Hexagon Boundary: Hexagon → Infrastructure ==
+
+service -> repoPort : findByOrigin("JFK")
+activate repoPort
+note right
+  Use case depends on
+  **interface** (driven port),
+  not implementation
+end note
+
+== Infrastructure Layer (Outside) ==
+
+repoPort -> repoAdapter : findByOrigin("JFK")
+activate repoAdapter
+
+repoAdapter -> jpaRepo : findByOrigin("JFK")
+activate jpaRepo
+
+jpaRepo -> db : SELECT * FROM flights\nWHERE origin = 'JFK'
+activate db
+db --> jpaRepo : List<FlightEntity>
+deactivate db
+
+jpaRepo --> repoAdapter : List<FlightEntity>
+deactivate jpaRepo
+
+repoAdapter -> entity : toDomain()
+activate entity
+entity --> repoAdapter : Flight (domain)
+deactivate entity
+
+repoAdapter --> repoPort : List<Flight>
+deactivate repoAdapter
+
+== Hexagon Boundary: Infrastructure → Hexagon ==
+
+repoPort --> service : List<Flight>
+deactivate repoPort
+
+service --> useCase : List<Flight>
+deactivate service
+
+useCase --> controller : List<Flight>
+deactivate useCase
+
+== Infrastructure Layer (Outside) ==
+
+controller -> controller : map to FlightResponse DTOs
+controller --> client : HTTP 200 OK\nJSON: List<FlightResponse>
+deactivate controller
+
+== Key Principles ==
+
+note over client, db
+  **Dependency Direction:**
+  Infrastructure → Hexagon (ALLOWED)
+  Hexagon → Infrastructure (FORBIDDEN at compile time)
+
+  **The Hexagon Knows Nothing About:**
+  - Spring Framework (@Service, @Component, @RestController)
+  - JPA (@Entity, @Table)
+  - HTTP (REST, JSON)
+  - Database (PostgreSQL, SQL)
+
+  **Runtime Dependency Injection:**
+  - ApplicationConfig creates SearchFlightsService @Bean
+  - Spring injects FlightRepositoryAdapter at runtime
+  - Hexagon remains pure Java at compile time
+end note
+
+@enduml

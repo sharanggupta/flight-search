@@ -1,0 +1,131 @@
+@startuml hexagonal-architecture
+
+skinparam packageStyle rectangle
+skinparam backgroundColor white
+skinparam shadowing false
+
+title Hexagonal Architecture - Flight Search Application
+
+' The Hexagon (Inside)
+package "THE HEXAGON (Inside - Pure Java, NO Framework Dependencies)" <<Rectangle>> #FFFFCC {
+
+    package "Domain Layer" <<Rectangle>> #CCFFCC {
+        class Flight {
+            + String flightNumber
+            + String origin
+            + String destination
+            + LocalDateTime departureDateTime
+            + Duration duration
+            + String airline
+        }
+        note right of Flight : Pure domain entity\nNO annotations\nNO framework dependencies
+    }
+
+    package "Application Layer" <<Rectangle>> #CCE5FF {
+
+        package "Ports (Interfaces)" <<Rectangle>> {
+            interface SearchFlightsUseCase {
+                + searchByOrigin(String origin)
+            }
+            note right of SearchFlightsUseCase : Driving Port\nWhat hexagon PROVIDES\nCalled BY driving adapters
+
+            interface FlightRepository {
+                + findByOrigin(String origin)
+            }
+            note right of FlightRepository : Driven Port\nWhat hexagon NEEDS\nImplemented BY driven adapters
+        }
+
+        package "Services (Use Cases)" <<Rectangle>> {
+            class SearchFlightsService {
+                - FlightRepository repository
+                + searchByOrigin(String origin)
+            }
+            note right of SearchFlightsService : Pure Java\nNO @Service annotation!
+        }
+    }
+}
+
+' Infrastructure (Outside)
+package "INFRASTRUCTURE (Outside - Framework-Specific Code)" <<Rectangle>> #FFE5CC {
+
+    package "Input Adapters (Driving Adapters)" <<Rectangle>> {
+        class FlightController {
+            - SearchFlightsUseCase useCase
+            + searchFlights(String origin)
+        }
+        note right of FlightController : @RestController\nDriving adapter\nCALLS the driving port
+
+        class FlightResponse {
+            + String flightNumber
+            + String origin
+            + String destination
+            + LocalDateTime departureDateTime
+            + String duration
+            + String airline
+        }
+    }
+
+    package "Output Adapters (Driven Adapters)" <<Rectangle>> {
+        class FlightRepositoryAdapter {
+            - JpaFlightRepository jpaRepository
+            + findByOrigin(String origin)
+        }
+        note right of FlightRepositoryAdapter : @Component\nDriven adapter\nIMPLEMENTS the driven port
+
+        class FlightEntity {
+            + Long id
+            + String flightNumber
+            + String origin
+            + String destination
+            + LocalDateTime departureDateTime
+            + Long durationMinutes
+            + String airline
+            + toDomain()
+        }
+
+        interface JpaFlightRepository {
+            + findByOrigin(String origin)
+        }
+    }
+
+    package "Configuration" <<Rectangle>> {
+        class ApplicationConfig {
+            + searchFlightsUseCase()
+        }
+        note right of ApplicationConfig : @Configuration\nWires hexagon with @Bean\nRuntime dependency injection
+    }
+}
+
+' External
+actor Client
+database PostgreSQL
+
+' Relationships - The Hexagon
+SearchFlightsService .up.|> SearchFlightsUseCase : implements
+SearchFlightsService ..> FlightRepository : uses
+SearchFlightsService ..> Flight : uses
+
+' Relationships - Infrastructure to Hexagon
+FlightController ..> SearchFlightsUseCase : calls
+FlightController ..> FlightResponse : creates
+FlightRepositoryAdapter .up.|> FlightRepository : implements
+FlightRepositoryAdapter ..> Flight : creates
+FlightRepositoryAdapter --> JpaFlightRepository : uses
+JpaFlightRepository ..> FlightEntity : returns
+FlightEntity ..> Flight : converts to
+ApplicationConfig ..> SearchFlightsService : creates @Bean
+ApplicationConfig ..> SearchFlightsUseCase : provides
+
+' External connections
+Client -down-> FlightController : HTTP GET /api/flights
+JpaFlightRepository -down-> PostgreSQL : SQL Query
+
+note top of "THE HEXAGON (Inside - Pure Java, NO Framework Dependencies)"
+  **Golden Rule:**
+  The hexagon NEVER depends on the outside at compile time
+  - Pure Java (NO @Service, @Component)
+  - Framework agnostic
+  - Testable without Spring
+end note
+
+@enduml

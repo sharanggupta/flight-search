@@ -1,0 +1,106 @@
+@startuml package-structure
+
+skinparam packageStyle folder
+
+title Package Structure - Hexagonal Architecture
+
+package "dev.sharanggupta.flightsearch" {
+
+    package "domain" as domainPkg #CCFFCC {
+        class Flight {
+            Pure domain entity
+            NO annotations
+            NO framework dependencies
+        }
+    }
+
+    package "application" as applicationPkg #FFFFCC {
+
+        package "application.ports.input" as inputPortsPkg #CCE5FF {
+            interface SearchFlightsUseCase {
+                Driving Port
+                What hexagon PROVIDES
+            }
+        }
+
+        package "application.ports.output" as outputPortsPkg #CCE5FF {
+            interface FlightRepository {
+                Driven Port
+                What hexagon NEEDS
+            }
+        }
+
+        package "application.services" as servicesPkg #FFFFCC {
+            class SearchFlightsService {
+                Use Case
+                NO @Service annotation
+                Pure Java implementation
+            }
+        }
+    }
+
+    package "infrastructure" as infraPkg #FFE5CC {
+
+        package "infrastructure.config" as configPkg {
+            class ApplicationConfig {
+                @Configuration
+                Wires hexagon with @Bean
+            }
+        }
+
+        package "infrastructure.input.rest" as restPkg {
+            class FlightController {
+                @RestController
+                Driving adapter
+                CALLS driving port
+            }
+            class FlightResponse {
+                DTO
+                HTTP response model
+            }
+        }
+
+        package "infrastructure.output.persistence" as persistencePkg {
+            class FlightRepositoryAdapter {
+                @Component
+                Driven adapter
+                IMPLEMENTS driven port
+            }
+            class FlightEntity {
+                @Entity
+                JPA entity
+            }
+            interface JpaFlightRepository {
+                Spring Data JPA
+                Framework interface
+            }
+        }
+    }
+}
+
+' Dependencies - Inside Hexagon
+SearchFlightsService .up.|> SearchFlightsUseCase
+SearchFlightsService --> FlightRepository
+SearchFlightsService --> Flight
+
+' Dependencies - Infrastructure to Hexagon (ALLOWED)
+FlightController --> SearchFlightsUseCase : calls >
+FlightController --> FlightResponse
+FlightRepositoryAdapter .up.|> FlightRepository
+FlightRepositoryAdapter --> Flight : creates >
+FlightRepositoryAdapter --> JpaFlightRepository
+JpaFlightRepository --> FlightEntity
+FlightEntity ..> Flight
+ApplicationConfig ..> SearchFlightsService : creates >
+
+note as N1
+  **Golden Rule:**
+  The hexagon (domain + application)
+  NEVER depends on infrastructure
+  at compile time.
+
+  All arrows point FROM
+  infrastructure TO hexagon.
+end note
+
+@enduml
