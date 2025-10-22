@@ -82,31 +82,88 @@ The project uses GitHub Actions for automated testing on every push:
 
 Test results are automatically published and visible in PR checks. View the [Actions tab](https://github.com/sharanggupta/flight-search/actions) for detailed test reports.
 
-## Running the Application
+## Running the Application Locally
+
+### Prerequisites
+- Java 21
+- Docker & Docker Compose
+- Maven 3.6+
+
+### Option 1: Local Development (Recommended for Development)
+
+App runs locally with hot reload, database in Docker:
 
 ```bash
-./mvnw spring-boot:run
+# Start PostgreSQL and run app locally
+./scripts/start-local.sh
 ```
 
-## Requirements
+This automatically:
+- ✅ Starts PostgreSQL container
+- ✅ Initializes database with 10 sample flights
+- ✅ Runs Spring Boot app with `local` profile
+- ✅ Enables debug logging and SQL output
 
-- Java 21
-- Docker (for TestContainers)
-- Maven 3.6+
+### Option 2: Full Docker Stack (Production-like)
+
+Everything runs in Docker containers:
+
+```bash
+# Build and start all services
+./scripts/start-docker.sh
+```
+
+This automatically:
+- ✅ Builds application Docker image
+- ✅ Starts PostgreSQL and app containers
+- ✅ Waits for services to be healthy
+- ✅ Verifies API is responding
+
+### Option 3: Manual Control
+
+```bash
+# Start only PostgreSQL
+docker-compose up -d postgres
+
+# Run application with specific profile
+./mvnw spring-boot:run -Dspring-boot.run.profiles=local
+
+# Or run full stack
+docker-compose up --build
+```
+
+### Stopping Services
+
+```bash
+./scripts/stop.sh
+
+# Or manually
+docker-compose down
+
+# Remove database volume (fresh start)
+docker-compose down -v
+```
 
 ## API Endpoints
 
 ### Search Flights by Origin
-```
+```http
 GET /api/flights?origin={airportCode}
 ```
 
-Example:
+**Example requests:**
 ```bash
+# Flights from New York JFK
 curl http://localhost:8080/api/flights?origin=JFK
+
+# Flights from Los Angeles
+curl http://localhost:8080/api/flights?origin=LAX
+
+# Flights from San Francisco
+curl http://localhost:8080/api/flights?origin=SFO
 ```
 
-Response:
+**Example response:**
 ```json
 [
   {
@@ -116,9 +173,27 @@ Response:
     "departureDateTime": "2025-10-22T10:30:00",
     "duration": "5h 30m",
     "airline": "American Airlines"
+  },
+  {
+    "flightNumber": "AA101",
+    "origin": "JFK",
+    "destination": "SFO",
+    "departureDateTime": "2025-10-22T14:15:00",
+    "duration": "6h 00m",
+    "airline": "American Airlines"
   }
 ]
 ```
+
+### Sample Data
+
+The database is initialized with 10 sample flights covering routes between:
+- **JFK** (New York) ↔ LAX, SFO, LHR, CDG
+- **LAX** (Los Angeles) ↔ SFO, ORD
+- **SFO** (San Francisco) ↔ JFK, ATL
+- **ORD** (Chicago) → DEN, LAS
+
+Airlines: American Airlines, United Airlines, Delta Airlines, Southwest Airlines, British Airways
 
 ## Project Status
 

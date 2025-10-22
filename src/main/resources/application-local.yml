@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: FlightSearch
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/flightdb
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+logging:
+  level:
+    com.example.flightsearch: DEBUG
+    org.springframework.web: DEBUG
