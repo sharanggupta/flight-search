@@ -31,7 +31,7 @@ The sample flights have origins JFK, LAX, SFO and ORD, with departure dates in O
 
 To stop: press Ctrl+C in the app terminal, then run `./scripts/stop.sh`. For a fresh database, run `docker-compose -f docker/docker-compose.yml down -v` instead.
 
-`./scripts/start-docker.sh` builds the app image and runs app and database together in Docker (not confirmed yet, see Limitations).
+`./scripts/start-docker.sh` builds the app image and runs app and database together in Docker (Ctrl+C is not needed: it runs detached, and `./scripts/stop.sh` stops it).
 
 ## The API
 
@@ -89,4 +89,4 @@ Java 21, Spring Boot 3.4.0, Spring Data JPA, PostgreSQL, Maven, JUnit 5, Testcon
 - No LICENSE file in the repository.
 - Origin matching is case-sensitive and there is no validation of airport codes.
 - The `local` profile validates the schema that `init-db.sql` created, while the default profile uses `ddl-auto: create-drop`, so running the app without the `local` profile against an existing database will drop its tables.
-- Checked by running: both Maven test commands, `start-local.sh`, and the API calls above. Not confirmed: `start-docker.sh`, whose image build failed twice with Docker Desktop disk I/O errors on the machine used for checking, not with an error from the repository.
+- Checked by running: both Maven test commands, `start-local.sh`, `start-docker.sh` (image builds, the API answers on port 8080) and the API calls above.
